@@ -38,17 +38,9 @@ jobs:
     with:
       pre-commit-source: "--group pre-commit"
 
-  towncrier:
-    name: Check towncrier
-    uses: beeware/.github/.github/workflows/towncrier-run.yml@741cc5a311012ee0ee195938889a337449d01eeb  # main
-    permissions:
-      contents: read
-      pull-requests: write
-    with:
-      tox-source: "--group tox"
-
   package:
     name: Package WebView2 (${{ matrix.arch }})
+    needs: pre-commit
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -57,8 +49,8 @@ jobs:
     strategy:
       matrix:
         include:
-          # - arch: "x86"
-          #   plat-name: "win32"
+          - arch: "x86"
+            plat-name: "win32"
           - arch: "x86_64"
             plat-name: "win_amd64"
           - arch: "arm64"
@@ -93,20 +85,20 @@ jobs:
 
       # To ensure the binary wheel only contains the binaries for that platform,
       # delete content that is for other architectures.
-      # - name: Remove x86 binary
-      #   if: ${{ matrix.arch != 'x86' }}
-      #   run: |
-      #     rm -rf winforms/src/toga_winforms/libs/WebView2/runtimes/win-x86
+      - name: Remove x86 binary
+        if: ${{ matrix.arch != 'x86' }}
+        run: |
+          rm -rf src/WebView2/runtimes/win-x86
 
       - name: Remove x86_64 binary
         if: ${{ matrix.arch != 'x86_64' }}
         run: |
-          rm -rf winforms/src/toga_winforms/libs/WebView2/runtimes/win-x64
+          rm -rf src/WebView2/runtimes/win-x64
 
       - name: Remove ARM64 binary
         if: ${{ matrix.arch != 'arm64' }}
         run: |
-          rm -rf winforms/src/toga_winforms/libs/WebView2/runtimes/win-arm64
+          rm -rf src/WebView2/runtimes/win-arm64
 
       - name: Build Package & Upload Artifact
         id: package
@@ -118,15 +110,22 @@ jobs:
           skip-sdist: true
 
   test:
-    name: Test (${{ matrix.runs-on }})
+    name: Test (${{ matrix.runs-on }}, Python ${{ matrix.python-version}})
     needs: package
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
       matrix:
         runs-on: ["windows-latest", "windows-11-arm"]
-
+        python-version: ["3.11", "3.14"]
     steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          repository: ${{ github.repository }}
+          fetch-depth: 0  # Fetch all refs so setuptools_scm can generate the correct version number
+          persist-credentials: false
+
       - name: Get packages
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
@@ -137,10 +136,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
-          python-version: "3.X"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install Dependencies
         run: |
           python -m pip install -U pip
           python -m pip install --pre -f ./dist WebView2.runtime
-          python -c "import WebView2; print(f'{WebView2.__version__=})"
+
+      - name: Test package
+        run: |
+          python tools/smoke_test.py
