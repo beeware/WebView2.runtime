@@ -17,17 +17,16 @@ jobs:
   update:
     name: Check for WebView2 update
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           repository: ${{ github.repository }}
           fetch-depth: 0  # Fetch all refs so update.py can compare against release tags
+          # Don't persist the token in .git/config (avoids the artipacked
+          # credential-leak vector); pushes are authenticated via the gh
+          # credential helper configured in "Configure git" below.
           persist-credentials: false
-          # Use the brutusthebee PAT so that the pushed branch triggers CI on the PR.
-          token: ${{ secrets.BRUTUS_PAT_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
@@ -38,6 +37,18 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install --group update --group pre-commit
+
+      - name: Configure git
+        env:
+          GH_TOKEN: ${{ secrets.BRUTUS_PAT_TOKEN }}
+        run: |
+          git config --local user.email "brutus@beeware.org"
+          git config --local user.name "Brutus[bot]"
+          # Authenticate git via the gh credential helper using BRUTUS_PAT_TOKEN,
+          # rather than a token persisted by actions/checkout. This also ensures
+          # that the resulting pull request is authored by Brutus[bot], which is
+          # exempted from the PR checklist check.
+          gh auth setup-git
 
       - name: Run update script
         id: update
@@ -68,15 +79,18 @@ jobs:
 
       - name: Create Pull Request
         if: steps.update.outputs.updated == 'true'
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e  # v7.0.8
-        with:
-          token: ${{ secrets.BRUTUS_PAT_TOKEN }}
-          branch: update/webview2-${{ steps.update.outputs.version }}
-          commit-message: "Update WebView2 runtime to ${{ steps.update.outputs.version }}"
-          title: "Update WebView2 runtime to ${{ steps.update.outputs.version }}"
-          body: |
-            Update the Microsoft.Web.WebView2 runtime DLLs to version `${{ steps.update.outputs.version }}`.
+        env:
+          GH_TOKEN: ${{ secrets.BRUTUS_PAT_TOKEN }}
+          VERSION: ${{ steps.update.outputs.version }}
+        run: |
+          timestamp="$(date +%Y%m%d-%H%M%S)"
+          branch_name="update/webview2-${VERSION}-${timestamp}"
+          git checkout -b "$branch_name"
+          git add --all
+          git commit -m "Update WebView2 runtime to ${VERSION}"
+          git push --set-upstream origin "$branch_name"
 
-          author: "Brutus[bot] <brutus@beeware.org>"
-          committer: "Brutus[bot] <brutus@beeware.org>"
-          delete-branch: true
+          gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Update WebView2 runtime to ${VERSION}" \
+            --body "Update the Microsoft.Web.WebView2 runtime DLLs to version \`${VERSION}\`."
