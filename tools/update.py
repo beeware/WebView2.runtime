@@ -11,13 +11,20 @@ DLLs that are vendored into ``src/WebView2``:
 * ``LICENSE.WebView2`` in the repository root is updated from the package's
   root ``LICENSE.txt``.
 
+If no version is provided, the script queries NuGet for the latest stable
+release and compares it against the most recent ``v*`` git tag. If NuGet has a
+newer stable release, an update is generated for that release; otherwise the
+script reports that the vendored version is already up to date.
+
 Usage::
 
     python tools/update.py 1.0.4078.44
+    python tools/update.py
 """
 
 import argparse
 import io
+import subprocess
 import sys
 import zipfile
 from pathlib import Path
@@ -30,6 +37,9 @@ PACKAGE_ID = "Microsoft.Web.WebView2"
 # The flat-container download URL for a specific version of a NuGet package.
 # This returns the raw .nupkg (a ZIP archive).
 DOWNLOAD_URL = "https://www.nuget.org/api/v2/package/{package_id}/{version}"
+
+# The flat-container index that lists every published version of a package.
+VERSIONS_URL = "https://api.nuget.org/v3-flatcontainer/{package_id}/index.json"
 
 # The folder inside the package that contains the managed assemblies to vendor.
 LIB_FOLDER = "lib/net462"
@@ -52,6 +62,64 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # The vendored copy of the WebView2 license in the repository root.
 REPO_LICENSE = REPO_ROOT / "LICENSE.WebView2"
+
+
+def version_key(version):
+    """Convert a dotted version string into a comparable tuple of integers.
+
+    :param version: A dotted version string (e.g. ``1.0.4078.44``).
+    :returns: A tuple of integers suitable for ordering comparisons.
+    """
+    return tuple(int(part) for part in version.split("."))
+
+
+def latest_stable_version():
+    """Return the latest stable ``Microsoft.Web.WebView2`` release on NuGet.
+
+    Prerelease versions (those with a ``-prerelease`` style suffix) are
+    ignored.
+
+    :returns: The latest stable version string (e.g. ``1.0.4078.44``).
+    """
+    url = VERSIONS_URL.format(package_id=PACKAGE_ID.lower())
+    print(f"Querying NuGet for available versions from {url} ...")
+    response = httpx2.get(url, follow_redirects=True)
+    response.raise_for_status()
+    versions = response.json()["versions"]
+
+    # Stable releases contain only digits and dots; anything with a suffix
+    # (e.g. "-prerelease") is a prerelease and is excluded.
+    stable = [
+        version
+        for version in versions
+        if all(part.isdigit() for part in version.split("."))
+    ]
+    if not stable:
+        raise RuntimeError("No stable versions found on NuGet.")
+
+    latest = max(stable, key=version_key)
+    print(f"Latest stable release on NuGet is {latest}.")
+    return latest
+
+
+def current_version():
+    """Return the currently vendored version from the most recent git tag.
+
+    Release tags are of the form ``v{version}`` (e.g. ``v1.0.4022.49``).
+
+    :returns: The current version string, or ``None`` if there are no tags.
+    """
+    result = subprocess.run(
+        ["git", "tag", "--sort=-v:refname"],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    tags = [line for line in result.stdout.splitlines() if line.startswith("v")]
+    if not tags:
+        return None
+    return tags[0].removeprefix("v")
 
 
 def download_package(version):
@@ -146,14 +214,37 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "version",
-        help="The WebView2 NuGet package version tag (e.g. 1.0.4078.44).",
+        nargs="?",
+        help=(
+            "The WebView2 NuGet package version tag (e.g. 1.0.4078.44). "
+            "If omitted, the latest stable release is used, and an update is "
+            "only generated if it is newer than the most recent git tag."
+        ),
     )
     args = parser.parse_args()
 
     try:
-        update(args.version)
-    except (FileNotFoundError, OSError, httpx2.HTTPError) as exc:
+        if args.version:
+            update(args.version)
+        else:
+            latest = latest_stable_version()
+            current = current_version()
+            if current is None:
+                print("No existing release tag found; updating to latest.")
+            elif version_key(latest) <= version_key(current):
+                print(
+                    f"Vendored version {current} is already up to date "
+                    f"(latest stable is {latest}); nothing to do."
+                )
+                return
+            else:
+                print(f"Updating from {current} to {latest}.")
+            update(latest)
+    except (FileNotFoundError, OSError, RuntimeError, httpx2.HTTPError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
+        sys.exit(1)
+    except subprocess.CalledProcessError as exc:
+        print(f"Error: git command failed: {exc}", file=sys.stderr)
         sys.exit(1)
 
 

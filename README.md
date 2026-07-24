@@ -30,6 +30,10 @@ To update the WebView2 binaries, run:
     $ source venv/bin/activate
     (venv) $ pip install -U pip
     (venv) $ pip install --group dev
+    (venv) $ python tools/update.py
+
+Or, to update to a specific version, use:
+
     (venv) $ python tools/update.py 1.0.3967.48
 
 ## Community
