@@ -11,4 +11,4 @@ jobs:
     name: Check PR template
     permissions:
       pull-requests: read
-    uses: beeware/.github/.github/workflows/pr-checklist.yml@66283ddb9e206f93b423118deecf1caf516078c1  # main
+    uses: beeware/.github/.github/workflows/pr-checklist.yml@84508d17a1d29ee3b82ce2e467dcd38c4a0c6a5a  # main

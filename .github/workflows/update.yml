@@ -1,0 +1,96 @@
+name: Update WebView2 Runtime
+
+on:
+  # Run at 8PM (20:00) UTC every Sunday.
+  schedule:
+    - cron: "0 20 * * 0"
+  # Allow the workflow to be triggered manually.
+  workflow_dispatch:
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  update:
+    name: Check for WebView2 update
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: ${{ github.repository }}
+          fetch-depth: 0  # Fetch all refs so update.py can compare against release tags
+          # Don't persist the token in .git/config (avoids the artipacked
+          # credential-leak vector); pushes are authenticated via the gh
+          # credential helper configured in "Configure git" below.
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        with:
+          python-version: "3.X"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip
+          python -m pip install --group update --group pre-commit
+
+      - name: Configure git
+        env:
+          GH_TOKEN: ${{ secrets.BRUTUS_PAT_TOKEN }}
+        run: |
+          git config --local user.email "brutus@beeware.org"
+          git config --local user.name "Brutus[bot]"
+          # Authenticate git via the gh credential helper using BRUTUS_PAT_TOKEN,
+          # rather than a token persisted by actions/checkout. This also ensures
+          # that the resulting pull request is authored by Brutus[bot], which is
+          # exempted from the PR checklist check.
+          gh auth setup-git
+
+      - name: Run update script
+        id: update
+        run: |
+          python tools/update.py | tee update.log
+
+          # If update.py didn't modify any vendored files, there's nothing to do.
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No update available; nothing to do."
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Extract the version the script updated to from its output.
+          VERSION="$(sed -n 's/^Updated WebView2 DLLs to \(.*\)\.$/\1/p' update.log)"
+          echo "Update found for version ${VERSION}."
+          echo "updated=true" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Apply pre-commit fixes
+        if: steps.update.outputs.updated == 'true'
+        run: |
+          # The LICENSE.WebView2 file (and potentially other files) will be
+          # rewritten by the pre-commit hooks (e.g. end-of-file-fixer). Run
+          # pre-commit so the committed content matches what CI expects. This
+          # is expected to modify files, so the non-zero exit code is ignored.
+          python -m pre_commit run --all-files || true
+
+      - name: Create Pull Request
+        if: steps.update.outputs.updated == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.BRUTUS_PAT_TOKEN }}
+          VERSION: ${{ steps.update.outputs.version }}
+        run: |
+          timestamp="$(date +%Y%m%d-%H%M%S)"
+          branch_name="update/webview2-${VERSION}-${timestamp}"
+          git checkout -b "$branch_name"
+          git add --all
+          git commit -m "Update WebView2 runtime to ${VERSION}"
+          git push --set-upstream origin "$branch_name"
+
+          gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Update WebView2 runtime to ${VERSION}" \
+            --body "Update the Microsoft.Web.WebView2 runtime DLLs to version \`${VERSION}\`."

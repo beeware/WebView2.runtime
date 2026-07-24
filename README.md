@@ -12,6 +12,30 @@ Before use, the end-user must have the WebView2 Runtime installed. [Details can 
 
 ## Usage
 
+Once installed in an environment that also has Python.NET installed, importing the WebView2 package will load the WebView2 assemblies. The `Microsoft.Web.WebView2` libraries can then be imported and used:
+
+    # Load the WebView2 assemblies
+    import WebView2
+
+    # Create a WebView2 instance
+    from Microsoft.Web.WebView2.WinForms import WebView2
+
+    webview2 = WebView2()
+
+## Updating the binaries
+
+To update the WebView2 binaries, run:
+
+    $ python -m venv venv
+    $ source venv/bin/activate
+    (venv) $ pip install -U pip
+    (venv) $ pip install --group dev
+    (venv) $ python tools/update.py
+
+Or, to update to a specific version, use:
+
+    (venv) $ python tools/update.py 1.0.3967.48
+
 ## Community
 
 This binary distribution package is part of the [BeeWare suite](http://beeware.org). You can talk to the community through:

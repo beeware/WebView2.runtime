@@ -34,7 +34,7 @@ permissions:
 jobs:
   pre-commit:
     name: Pre-commit checks
-    uses: beeware/.github/.github/workflows/pre-commit-run.yml@741cc5a311012ee0ee195938889a337449d01eeb  # main
+    uses: beeware/.github/.github/workflows/pre-commit-run.yml@84508d17a1d29ee3b82ce2e467dcd38c4a0c6a5a  # main
     with:
       pre-commit-source: "--group pre-commit"
 
@@ -49,8 +49,8 @@ jobs:
     strategy:
       matrix:
         include:
-          # - arch: "x86"
-          #   plat-name: "win32"
+          - arch: "x86"
+            plat-name: "win32"
           - arch: "x86_64"
             plat-name: "win_amd64"
           - arch: "arm64"
@@ -58,7 +58,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           repository: ${{ github.repository }}
           fetch-depth: 0  # Fetch all refs so setuptools_scm can generate the correct version number
@@ -85,20 +85,20 @@ jobs:
 
       # To ensure the binary wheel only contains the binaries for that platform,
       # delete content that is for other architectures.
-      # - name: Remove x86 binary
-      #   if: ${{ matrix.arch != 'x86' }}
-      #   run: |
-      #     rm -rf winforms/src/toga_winforms/libs/WebView2/runtimes/win-x86
+      - name: Remove x86 binary
+        if: ${{ matrix.arch != 'x86' }}
+        run: |
+          rm -rf src/WebView2/runtimes/win-x86
 
       - name: Remove x86_64 binary
         if: ${{ matrix.arch != 'x86_64' }}
         run: |
-          rm -rf winforms/src/toga_winforms/libs/WebView2/runtimes/win-x64
+          rm -rf src/WebView2/runtimes/win-x64
 
       - name: Remove ARM64 binary
         if: ${{ matrix.arch != 'arm64' }}
         run: |
-          rm -rf winforms/src/toga_winforms/libs/WebView2/runtimes/win-arm64
+          rm -rf src/WebView2/runtimes/win-arm64
 
       - name: Build Package & Upload Artifact
         id: package
@@ -110,14 +110,14 @@ jobs:
           skip-sdist: true
 
   test:
-    name: Test (${{ matrix.runs-on }})
+    name: Test (${{ matrix.runs-on }}, Python ${{ matrix.python-version}})
     needs: package
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
       matrix:
         runs-on: ["windows-latest", "windows-11-arm"]
-
+        python-version: ["3.11", "3.14"]
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -136,10 +136,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
-          python-version: "3.X"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install Dependencies
         run: |
           python -m pip install -U pip
           python -m pip install --pre -f ./dist WebView2.runtime
+
+      - name: Test package
+        run: |
           python tools/smoke_test.py
