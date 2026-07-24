@@ -53,9 +53,14 @@ setuptools-scm = [
     "setuptools_scm == 10.0.5",
 ]
 
+update = [
+    "httpx2 == 2.9.0",
+]
+
 dev = [
     {include-group = "pre-commit"},
     {include-group = "setuptools-scm"},
+    {include-group = "update"},
 ]
 
 test = [
