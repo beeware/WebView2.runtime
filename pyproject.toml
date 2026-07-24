@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     "setuptools==83.0.0",
-    "setuptools_scm==10.2.1",
+    "setuptools_scm==10.2.0",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -51,7 +51,7 @@ pre-commit = [
 ]
 
 setuptools-scm = [
-    "setuptools_scm == 10.0.5",
+    "setuptools_scm == 10.2.0",
 ]
 
 tox = [
@@ -65,7 +65,7 @@ dev = [
 ]
 
 test = [
-    "pytest == 9.0.3",
+    "pytest == 9.1.1",
     {include-group = "setuptools-scm"},
 ]
 
