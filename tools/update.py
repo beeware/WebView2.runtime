@@ -8,6 +8,8 @@ DLLs that are vendored into ``src/WebView2``:
   ``lib/net462`` folder.
 * ``src/WebView2/runtimes/*/native/WebView2Loader.dll`` are updated from the
   package's matching ``runtimes/*/native`` folders.
+* ``LICENSE.WebView2`` in the repository root is updated from the package's
+  root ``LICENSE.txt``.
 
 Usage::
 
@@ -39,8 +41,17 @@ RUNTIMES_FOLDER = "runtimes"
 # The native loader filename shipped for each runtime.
 LOADER_NAME = "WebView2Loader.dll"
 
+# The license file at the root of the NuGet package.
+PACKAGE_LICENSE = "LICENSE.txt"
+
 # The repository's ``src/WebView2`` directory (relative to this script).
 WEBVIEW2_DIR = Path(__file__).resolve().parent.parent / "src" / "WebView2"
+
+# The repository root (relative to this script).
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
+# The vendored copy of the WebView2 license in the repository root.
+REPO_LICENSE = REPO_ROOT / "LICENSE.WebView2"
 
 
 def download_package(version):
@@ -103,6 +114,21 @@ def update_native_loaders(package):
         loader.write_bytes(data)
 
 
+def update_license(package):
+    """Update the vendored WebView2 license from the package.
+
+    :param package: The opened NuGet package archive.
+    """
+    print(f"Updating {REPO_LICENSE.name} from {PACKAGE_LICENSE} ...")
+    try:
+        data = package.read(PACKAGE_LICENSE)
+    except KeyError as exc:
+        raise FileNotFoundError(
+            f"{PACKAGE_LICENSE} not found in the NuGet package."
+        ) from exc
+    REPO_LICENSE.write_bytes(data)
+
+
 def update(version):
     """Update all vendored WebView2 DLLs to the given version.
 
@@ -112,6 +138,7 @@ def update(version):
     with package:
         update_managed_dlls(package)
         update_native_loaders(package)
+        update_license(package)
     print(f"Updated WebView2 DLLs to {version}.")
 
 
