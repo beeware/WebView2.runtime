@@ -11,3 +11,13 @@ set_runtime(
 import WebView2  # noqa: E402
 
 print(f"{WebView2.__version__=}")
+
+print("Importing WebView2...")
+
+from Microsoft.Web.WebView2.WinForms import WebView2  # noqa: E402
+
+print("Creating Webview2 instance...")
+webview2 = WebView2()
+print(f"{webview2=}")
+
+print("Done.")
