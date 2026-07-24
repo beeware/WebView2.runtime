@@ -49,8 +49,8 @@ jobs:
     strategy:
       matrix:
         include:
-          # - arch: "x86"
-          #   plat-name: "win32"
+          - arch: "x86"
+            plat-name: "win32"
           - arch: "x86_64"
             plat-name: "win_amd64"
           - arch: "arm64"
@@ -85,20 +85,20 @@ jobs:
 
       # To ensure the binary wheel only contains the binaries for that platform,
       # delete content that is for other architectures.
-      # - name: Remove x86 binary
-      #   if: ${{ matrix.arch != 'x86' }}
-      #   run: |
-      #     rm -rf winforms/src/toga_winforms/libs/WebView2/runtimes/win-x86
+      - name: Remove x86 binary
+        if: ${{ matrix.arch != 'x86' }}
+        run: |
+          rm -rf src/WebView2/runtimes/win-x86
 
       - name: Remove x86_64 binary
         if: ${{ matrix.arch != 'x86_64' }}
         run: |
-          rm -rf winforms/src/toga_winforms/libs/WebView2/runtimes/win-x64
+          rm -rf src/WebView2/runtimes/win-x64
 
       - name: Remove ARM64 binary
         if: ${{ matrix.arch != 'arm64' }}
         run: |
-          rm -rf winforms/src/toga_winforms/libs/WebView2/runtimes/win-arm64
+          rm -rf src/WebView2/runtimes/win-arm64
 
       - name: Build Package & Upload Artifact
         id: package
