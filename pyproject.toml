@@ -54,18 +54,12 @@ setuptools-scm = [
     "setuptools_scm == 10.0.5",
 ]
 
-tox = [
-    "tox-uv == 1.35.2",
-]
-
 dev = [
     {include-group = "pre-commit"},
     {include-group = "setuptools-scm"},
-    {include-group = "tox"},
 ]
 
 test = [
-    "pytest == 9.0.3",
     {include-group = "setuptools-scm"},
 ]
 
