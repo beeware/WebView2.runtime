@@ -134,4 +134,4 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install --pre -f ./dist WebView2.runtime
-          python -c "import WebView2; print(f'{WebView2.__version__=}')"
+          python tools/smoke_test.py
