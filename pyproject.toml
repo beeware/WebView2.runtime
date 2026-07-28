@@ -37,10 +37,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/beeware/webview2-runtime"
+Homepage = "https://github.com/beeware/WebView2.runtime"
 Funding = "https://beeware.org/contributing/membership/"
-Tracker = "https://github.com/beeware/webview2-runtime/issues"
-Source = "https://github.com/beeware/webview2-runtime"
+Tracker = "https://github.com/beeware/WebView2.runtime/issues"
+Source = "https://github.com/beeware/WebView2.runtime"
 
 [dependency-groups]
 # Extras used by developers *of* this library are pinned to specific versions to

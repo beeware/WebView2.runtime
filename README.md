@@ -1,5 +1,7 @@
 # WebView2.runtime
 
+**NOTE: This project has been renamed `dotNET.WebView2.WinForms`**
+
 [<img src="http://beeware.org/static/images/defaultlogo.png" width="72px" alt="Generic BeeWare Logo">](https://beeware.org/)
 
 [![Python Versions](https://img.shields.io/pypi/pyversions/WebView2.runtime.svg)](https://pypi.python.org/pypi/WebView2.runtime) [![PyPI Version](https://img.shields.io/pypi/v/WebView2.runtime.svg)](https://pypi.python.org/pypi/WebView2.runtime) [![Maturity](https://img.shields.io/pypi/status/WebView2.runtime.svg)](https://pypi.python.org/pypi/WebView2.runtime) [![BSD License](https://img.shields.io/pypi/l/WebView2.runtime.svg)](https://github.com/beeware/WebView2.runtime/blob/main/LICENSE) [![Discord server](https://img.shields.io/discord/836455665257021440?label=Discord%20Chat&logo=discord&style=plastic)](https://beeware.org/bee/chat/)
