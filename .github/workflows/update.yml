@@ -23,9 +23,6 @@ jobs:
         with:
           repository: ${{ github.repository }}
           fetch-depth: 0  # Fetch all refs so update.py can compare against release tags
-          # Don't persist the token in .git/config (avoids the artipacked
-          # credential-leak vector); pushes are authenticated via the gh
-          # credential helper configured in "Configure git" below.
           persist-credentials: false
 
       - name: Set up Python

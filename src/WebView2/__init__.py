@@ -5,7 +5,7 @@ from pathlib import Path
 
 import clr
 
-__version__ = version("WebView2.runtime")
+__version__ = version("dotnet-WebView2.WinForms")
 
 WEBVIEW2_DIR = Path(__file__).parent
 

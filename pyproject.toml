@@ -6,9 +6,9 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "WebView2.runtime"
+name = "dotnet-WebView2.WinForms"
 dynamic = ["version"]
-description = "A Python package providing the Microsoft.Web.WebView2 runtime DLLs"
+description = "Python.NET bindings to the Microsoft.Web.WebView2 Winforms component"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "BSD-3-Clause"
@@ -37,10 +37,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/beeware/WebView2.runtime"
+Homepage = "https://github.com/beeware/dotnet-WebView2.WinForms"
 Funding = "https://beeware.org/contributing/membership/"
-Tracker = "https://github.com/beeware/WebView2.runtime/issues"
-Source = "https://github.com/beeware/WebView2.runtime"
+Tracker = "https://github.com/beeware/dotnet-WebView2.WinForms/issues"
+Source = "https://github.com/beeware/dotnet-WebView2.WinForms"
 
 [dependency-groups]
 # Extras used by developers *of* this library are pinned to specific versions to

@@ -141,7 +141,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install -U pip
-          python -m pip install --pre -f ./dist WebView2.runtime
+          python -m pip install --pre -f ./dist dotnet-WebView2.WinForms
 
       - name: Test package
         run: |
