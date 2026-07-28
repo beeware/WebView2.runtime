@@ -1,8 +1,8 @@
-# dotNET.WebView2.WinForms
+# dotnet-WebView2.WinForms
 
 [<img src="http://beeware.org/static/images/defaultlogo.png" width="72px" alt="Generic BeeWare Logo">](https://beeware.org/)
 
-[![Python Versions](https://img.shields.io/pypi/pyversions/dotNET.WebView2.WinForms.svg)](https://pypi.python.org/pypi/dotNET.WebView2.WinForms) [![PyPI Version](https://img.shields.io/pypi/v/dotNET.WebView2.WinForms.svg)](https://pypi.python.org/pypi/dotNET.WebView2.WinForms) [![Maturity](https://img.shields.io/pypi/status/dotNET.WebView2.WinForms.svg)](https://pypi.python.org/pypi/dotNET.WebView2.WinForms) [![BSD License](https://img.shields.io/pypi/l/dotNET.WebView2.WinForms.svg)](https://github.com/beeware/dotNET.WebView2.WinForms/blob/main/LICENSE) [![Discord server](https://img.shields.io/discord/836455665257021440?label=Discord%20Chat&logo=discord&style=plastic)](https://beeware.org/bee/chat/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/dotnet-WebView2.WinForms.svg)](https://pypi.python.org/pypi/dotnet-WebView2.WinForms) [![PyPI Version](https://img.shields.io/pypi/v/dotnet-WebView2.WinForms.svg)](https://pypi.python.org/pypi/dotnet-WebView2.WinForms) [![Maturity](https://img.shields.io/pypi/status/dotnet-WebView2.WinForms.svg)](https://pypi.python.org/pypi/dotnet-WebView2.WinForms) [![BSD License](https://img.shields.io/pypi/l/dotnet-WebView2.WinForms.svg)](https://github.com/beeware/dotnet-WebView2.WinForms/blob/main/LICENSE) [![Discord server](https://img.shields.io/discord/836455665257021440?label=Discord%20Chat&logo=discord&style=plastic)](https://beeware.org/bee/chat/)
 
 This package contains the [Microsoft.Web.WebView2](https://www.nuget.org/packages/Microsoft.Web.WebView2) binaries, packaged with a light [Python.NET](http://pythonnet.github.io) wrapper. It provides a WebView2 WinForms control.
 
@@ -47,4 +47,4 @@ We foster a welcoming and respectful community as described in our [BeeWare Comm
 
 ## Contributing
 
-If you experience problems with this package, [log them on GitHub](https://github.com/beeware/dotNET.WebView2.WinForms/issues). If you want to contribute, please [fork the project](https://github.com/beeware/dotNET.WebView2.WinForms) and [submit a pull request](https://github.com/beeware/dotNET.WebView2.WinForms/pulls).
+If you experience problems with this package, [log them on GitHub](https://github.com/beeware/dotnet-WebView2.WinForms/issues). If you want to contribute, please [fork the project](https://github.com/beeware/dotnet-WebView2.WinForms) and [submit a pull request](https://github.com/beeware/dotnet-WebView2.WinForms/pulls).
