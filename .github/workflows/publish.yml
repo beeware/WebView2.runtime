@@ -16,9 +16,9 @@ jobs:
         with:
           version: tags/${{ github.event.release.tag_name }}
           # This next line is *not* a bash filename expansion - it's a regex. We
-          # need to match all files that start with webview2_runtime but not the
+          # need to match all files that start with dotnet_webview2_winforms but not the
           # "Source code" zip and tarball.
-          file: webview2_runtime.*
+          file: dotnet_webview2_winforms.*
           regex: true
           target: dist/
 
