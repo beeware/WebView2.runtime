@@ -86,9 +86,7 @@ extend-select = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-# Ignores needed to pass the Ruff 0.16 update.
-# The package name matches the "WebView2" product name, so it can't
-# conform to standard Python module naming conventions.
+# PEP8 module naming conventions aren't appropriate
 "src/WebView2/__init__.py" = ["N999"]
 
 [tool.rumdl]
