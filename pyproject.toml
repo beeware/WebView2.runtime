@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     "setuptools==83.0.0",
-    "setuptools_scm==10.2.0",
+    "setuptools_scm==10.2.1",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -46,15 +46,15 @@ Source = "https://github.com/beeware/dotnet-WebView2.WinForms"
 # Extras used by developers *of* this library are pinned to specific versions to
 # ensure environment consistency.
 pre-commit = [
-    "pre-commit == 4.6.0",
+    "pre-commit == 4.6.1",
 ]
 
 setuptools-scm = [
-    "setuptools_scm == 10.2.0",
+    "setuptools_scm == 10.2.1",
 ]
 
 update = [
-    "httpx2 == 2.9.0",
+    "httpx2 == 2.9.1",
 ]
 
 dev = [
@@ -84,6 +84,10 @@ extend-select = [
     # use improvement.
     # "SIM",    # flake8-simplify
 ]
+
+[tool.ruff.lint.per-file-ignores]
+# PEP8 module naming conventions aren't appropriate
+"src/WebView2/__init__.py" = ["N999"]
 
 [tool.rumdl]
 flavor = "mkdocs"
